@@ -1,5 +1,7 @@
 <?php 
 	session_start();
+	require_once('class/loadClass.php');
+
 	if(!isset($_SESSION['id_user']) OR empty($_SESSION['id_user'])){
 		header("Location:connexion.php");
 		exit();
@@ -10,20 +12,22 @@
 		exit();
 	}
 
+    $bdd = new BDD();
+    $bdd = $bdd->get_bdd();
+
 	//PHP TO insert data
 	$id_user =  $_SESSION['id_user'];
 	$id_vol = $_POST['id_vol'];
 
-	$reqinsert = $bdd->prepare("INSERT INTO user_vol(id_user,id_vol) (?,?)");
+	$reqinsert = $bdd->prepare("INSERT INTO user_vol(id_user,id_vol) VALUES (?,?)");
 
 	try{
 	    $bdd->beginTransaction();
-	    $reqinsert->execute(array($id_user,$id_vol)));
+	    $reqinsert->execute(array($id_user,$id_vol));
 	    $bdd->commit();
 	}catch(Exception $e){
 	    $bdd->rollback();
-	    $_SESSION['error'] = $error;
-	    Utils::redir('index.php');
+	    header('Location:index.php');
 	    exit;
 	}
 
