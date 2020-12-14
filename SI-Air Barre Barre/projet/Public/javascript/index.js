@@ -5,12 +5,8 @@ let voyages;	// list of object voyages
 
 /*! \brief initialise le tableau des voyages */
 async function mainInitWeb(ID_list_Voyages){
-	let Aeroports; 	// list of object Aeroports
 
-	Aeroports = new ListAirport('Aeroports');
-	await Aeroports.loadAirports();
-
-	voyages = new ListTrip(ID_list_Voyages,Aeroports.listAeroports);
+	voyages = new ListTrip(ID_list_Voyages);
 	await voyages.loadVoyages();
 	voyages.displayListTrip();
 }

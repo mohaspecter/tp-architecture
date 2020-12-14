@@ -2,20 +2,10 @@
 /* ------------ < Initialisation des listes > ------------ */
 /* ======================================================= */
 
-/*! \class Aeorport 
-* \brief classe d'un aeroport
-* \param nom: nom de la ville
-* \param code: acronyme aeoroport de la ville
-* \see displayAeroport affiche le nom et le code 
-*/
-class AEROPORT{
-	constructor(nom,code){
-		this.nom = nom;
-		this.code = code;
-	}
-
-	displayAeroport(){
-		console.log("Ville: " + this.nom + " Aeroport: "+this.code);
+class PLANE{
+	constructor(name,seats){
+		this.name = name;
+		this.seats = seats;
 	}
 }
 
@@ -26,16 +16,19 @@ class AEROPORT{
 * \param prix: prix du voyage
 */
 class VOYAGE{
-	constructor(depart,destination,prix){
+	constructor(depart,destination,prix,plane){
 		this.depart = depart;
 		this.destination = destination;
 		this.prix = prix;
+		this.plane = plane;
 	}
 
 	displayVoyages(i,user=false){
-		let depart = this.depart.nom + " " + this.depart.code;
-		let destination = this.destination.nom + " " + this.destination.code;
+		let depart = this.depart;
+		let destination = this.destination;
 		let prix = this.prix  + "€";
+		let planeName = this.plane.name;
+		let planeSeats = this.plane.seats;
 		let input;
 
 		if(user){
@@ -47,6 +40,12 @@ class VOYAGE{
 		return "<tr>\
 					<td class=\"vols\">\
 						<h3>"+ depart +" - "+ destination +"</h3>\
+					</td>\
+					<td class=\"prix\">\
+						<span>"+planeName+"</span>\
+					</td>\
+					<td class=\"prix\">\
+						<span>"+planeSeats+"</span>\
 					</td>\
 					<td class=\"prix\">\
 						<span>"+prix+"</span>\
@@ -72,7 +71,8 @@ class USER {
 			this.voyages = new Array();
 			if(voyages.length > 0){
 				for (var i = 0; i < voyages.length; i++) {
-					this.voyages.push(new VOYAGE(voyages[i].depart,voyages[i].destination,voyages[i].prix));
+					let plane = new PLANE(voyages[i].plane.name,voyages[i].plane.seats);
+					this.voyages.push(new VOYAGE(voyages[i].depart,voyages[i].destination,voyages[i].prix,plane));
 				}
 			}
 		}else{
@@ -109,9 +109,8 @@ class USER {
 * Permet d'obtenir une liste aléatoirement effectué par le serveur
 */
 class ListTrip{
-	constructor(ID_div,listAeroports){
+	constructor(ID_div){
 		this.ID_div = ID_div;
-		this.listAeroports = listAeroports;
 		this.Voyages = new Array();
 	}
 
@@ -119,14 +118,18 @@ class ListTrip{
 		console.log('loading trips...');
 		var res = await axiosLoad('Voyages');
 
-		let depart,destination,prix;
+		let depart,destination,prix,planeName,planeSeats;
 
 		for(var i = 0 ; i < res.data.length; i++){
-			depart = this.listAeroports[res.data[i][0]];
-			destination = this.listAeroports[res.data[i][1]];
+			depart = res.data[i][0];
+			destination = res.data[i][1];
 			prix = res.data[i][2];
+			planeName = res.data[i][3];
+			planeSeats = res.data[i][4];
 
-			this.Voyages.push(new VOYAGE(depart,destination,prix));
+			let plane = new PLANE(planeName,planeSeats);
+
+			this.Voyages.push(new VOYAGE(depart,destination,prix,plane));
 		}
 
 		console.log('update trips');
@@ -148,30 +151,6 @@ class ListTrip{
 			return false;
 	}
 }
-
-
-/*! \class ListAirport
-* \brief Class comportant la liste des aeroprots disponibles
-* Les aeroports son intialisé dans un fichier database.json
-* Ils sont récupérés grace à l'ajax
-*/
-class ListAirport{
-	constructor(nameDatabase){
-		this.listAeroports = new Array();
-		this.nameDatabase = nameDatabase;
-	}
-
-	async loadAirports(){
-		console.log('loading airports...');
-		var res = await axiosLoad(this.nameDatabase);
-		for (var i = 0; i < res.data.length; i++) {
-		 	this.listAeroports.push(new AEROPORT(res.data[i].nom,res.data[i].code));
-		}
-		console.log('update airports');
-	}
-
-}
-
 
 /* ======================================================= */
 /* ----------------- < Function Utiles > ----------------- */

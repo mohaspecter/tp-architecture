@@ -39,6 +39,8 @@ function theadTable(){
 	document.getElementById('head_list_vols').innerHTML = "\
 		<tr>\
 			<th>Départ - Destination</th>\
+			<th>Nom de l'avion</th>\
+			<th>Sièges total</th>\
 			<th>Prix</th>\
 			<th></th>\
 		</tr>"

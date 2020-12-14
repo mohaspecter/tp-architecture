@@ -1,7 +1,9 @@
 var express = require('express');
 var serve_static = require('serve-static');
 var http = require('http');
+var https = require('https');
 var fs = require('fs');
+var url = 'https://app-air-travel.azurewebsites.net/flights';
 
 var app = express();
 //Activation du serveur statique
@@ -16,28 +18,54 @@ serveur.listen(3005,function()
     console.log("http://localhost:3005/");
 });
 
-let database = JSON.parse(fs.readFileSync('database.json'));
-let Voyages = new Array();
-let Aeroports = database.Aeroports;
+var bodyParser = require('body-parser');
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-app.get('/Aeroports', function (req, res) {
-	res.send(Aeroports);
-});
+let database = JSON.parse(fs.readFileSync('database.json'));
+
+let Voyages = new Array();
+let urlVoyages = new Array();
+let baseVoyage = database;
+
+(async (url) => {
+	urlVoyages = await getScript(url);
+})(url);
 
 app.get('/Voyages', function (req, res) {
+	let tmpVoyage = JSON.parse(urlVoyages);
+
+	let prix = 0;
+	let departure  = 0;
+	let arrival = 0;
+	let planeName = "";
+	let planeSeats = 0;
+
 	if(Voyages.length == 0){
-		for(var i = 0 ; i < 10; i++){
-			let prix = randomInt(200,1000);
-			Voyages.push([randomTab(Aeroports),randomTab(Aeroports),prix]);
+		for (var i = 0; i < baseVoyage.length; i++) {
+			prix = randomInt(300,1000);
+			departure = baseVoyage[i].departure;
+			arrval = baseVoyage[i].arrival;
+			planeName = baseVoyage[i].plane.name;
+			planeSeats = baseVoyage[i].plane.seats;
+
+			Voyages.push([departure,arrval,prix,planeName,planeSeats]);
+		}
+
+		for(var i = 0 ; i  < tmpVoyage.length; i++){
+			prix = tmpVoyage[i].base_price;
+			departure = tmpVoyage[i].departure;
+			arrval = tmpVoyage[i].arrival;
+			planeName = tmpVoyage[i].plane.name;
+			planeSeats = tmpVoyage[i].plane.total_seats;
+			
+			Voyages.push([departure,arrval,prix,planeName,planeSeats]);
 		}
 	}
 
 	res.send(Voyages);
 });
 
-var bodyParser = require('body-parser');
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 let user = new Array();
 
 app.post('/regist',function(req,res){
@@ -153,4 +181,33 @@ function saveUserAccount(newUser,oldUser){
 	}
 
 	return oldUser;
+}
+
+function getScript(url){
+
+    return new Promise((resolve, reject) => {
+
+        let client = http;
+
+        if (url.toString().indexOf("https") === 0) {
+            client = https;
+        }
+
+        client.get(url, (resp) => {
+            let data = '';
+
+            // A chunk of data has been recieved.
+            resp.on('data', (chunk) => {
+                data += chunk;
+            });
+
+            // The whole response has been received. Print out the result.
+            resp.on('end', () => {
+                resolve(data);
+            });
+
+        }).on("error", (err) => {
+            reject(err);
+        });
+    });
 }
