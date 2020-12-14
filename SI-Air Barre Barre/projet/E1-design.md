@@ -9,6 +9,8 @@ Fonctionnement : nous allons utiliser une interface en js à l'aide du html
 Résultat : nous avons une liaison client/serveur correcte avec les vols s'affichant à un prix donné et le client peut sélectionner son ticket à réserver, voir les tickets réservés et en faire une recherche
 
 Architecture:
+- Toutes les pages: possiblité de se connecter à son compte et de revenir à l'accueil avec les boutons du header.
+
 - Accueil : nous arrivons directement sur la page permettant de voir les billets disponibles accompagné de leurs informations, lors de la réservation il faut alors se connecter ou s'inscrire.
 
 - Inscription/connexion : page d'inscription dans laquelle on rentre le nom, prénom et le mail pour voir les réservations qui y correspondent afin d'avoir plus d'informations dessus ou les supprimer.
